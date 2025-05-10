@@ -2,6 +2,21 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const User = require('../models/User')
 
+const PEPPER = process.env.PEPPER // Guarda esto en un .env
+const SALT_ROUNDS = 10
+
+const hashPassword = async (password) => {
+  const peppered = password + PEPPER
+  const hashed = await bcrypt.hash(peppered, SALT_ROUNDS)
+  return hashed
+}
+
+const verifyPassword = async (inputPassword, storedHash) => {
+  const peppered = inputPassword + PEPPER
+  const match = await bcrypt.compare(peppered, storedHash)
+  return match
+}
+
 const generateToken = (user) => {
   return jwt.sign(
     { user: user.username },
@@ -14,7 +29,7 @@ const generateToken = (user) => {
 
 exports.register = async (req, res) => {
   const { username, password } = req.body
-  const hashed = await bcrypt.hash(password, 10)
+  const hashed = await hashPassword(password)
   const user = { username, password: hashed }
 
   try {
@@ -58,7 +73,7 @@ exports.login = async (req, res) => {
       where: { username },
     })
   
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user || !(await verifyPassword(password, user.password))) {
       return res.status(401).json({ message: 'Invalid credentials' })
     }
   
