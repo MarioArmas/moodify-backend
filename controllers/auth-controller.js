@@ -56,7 +56,7 @@ exports.register = async (req, res) => {
     const token = generateToken(user)
   
     res.json({
-      user: { id: user.id_user, username: user.username },
+      username: user.username,
       token
     })
 
