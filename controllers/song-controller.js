@@ -1,5 +1,7 @@
 const { User, Emotion, Song, Recommendation, EmotionalAnalysis, sequelize } = require('../models/index');
 
+const TOTAL_RECOMMENDATIONS = 3
+
 // Obtener historial de canciones recomendadas por usuario
 exports.getHistory = async (req, res) => {
   const { username } = req.query
@@ -65,7 +67,7 @@ exports.getRecommendations = async (req, res) => {
     const songs = await Song.findAll({
       where: { id_emotion: emotion.id_emotion },
       order: sequelize.random(),
-      limit: 3
+      limit: TOTAL_RECOMMENDATIONS
     })
 
     // obtener usuario
@@ -117,3 +119,43 @@ exports.getRecommendations = async (req, res) => {
     res.status(500).json({ error: `Ocurrió un error al obtener la recomendación: ${error}` });
   }
 }
+
+exports.getLastRecommendations = async (req, res) => {
+  const { username } = req.query;
+
+  if (!username) {
+    return res.status(400).json({ error: 'Debes proporcionar un username' });
+  }
+
+  try {
+    // Buscar al usuario por username
+    const user = await User.findOne({
+      where: { username }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    // Obtener las últimas 3 recomendaciones del usuario
+    const lastRecommendations = await Recommendation.findAll({
+      where: { id_user: user.id_user },
+      include: [{
+        model: Song,
+        attributes: ['id_song', 'name', 'artist', 'genre', 'url_spotify']
+      }],
+      order: [['recomendation_date', 'DESC']],
+      group: ['Song.id_song'],
+      limit: TOTAL_RECOMMENDATIONS
+    });
+
+    if (lastRecommendations.length === 0) {
+      return res.status(404).json({ error: 'No se encontraron recomendaciones recientes' });
+    }
+
+    // Devolver las canciones recomendadas
+    res.json(lastRecommendations.map(rec => rec.Song));
+  } catch (error) {
+    res.status(500).json({ error: `Ocurrió un error al obtener las últimas recomendaciones: ${error}` });
+  }
+};
