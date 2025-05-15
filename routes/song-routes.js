@@ -1,9 +1,10 @@
 const express = require('express')
 const router = express.Router()
-const { getHistory, getRecommendations } = require('../controllers/song-controller')
+const { getHistory, getRecommendations, getLastRecommendations } = require('../controllers/song-controller')
 const authMiddleware = require('../middleware/auth-middleware')
 
 router.get('/history', authMiddleware, getHistory)
-router.get('/recommendation', authMiddleware, getRecommendations)
+router.post('/recommendation', authMiddleware, getRecommendations)
+router.get('/last-recommendations', authMiddleware, getLastRecommendations)
 
 module.exports = router

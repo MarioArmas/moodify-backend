@@ -1,3 +1,6 @@
+require('./config/instrument')
+const Sentry = require("@sentry/node");
+
 require('dotenv').config()
 var createError = require('http-errors')
 var express = require('express')
@@ -10,8 +13,13 @@ const sequelize = require('./config/db');
 var indexRouter = require('./routes/index')
 const authRoutes = require('./routes/auth-routes')
 const songRoutes = require('./routes/song-routes')
+const awsRoutes = require('./routes/aws-routes')
+const sentryRoutes = require('./routes/sentry-routes')
 
 var app = express()
+
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'))
@@ -27,6 +35,8 @@ app.use(cors())
 app.use('/', indexRouter)
 app.use('/api/auth', authRoutes)
 app.use('/api/song', songRoutes)
+app.use('/aws/rekognition', awsRoutes)
+app.use('/sentry', sentryRoutes)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
