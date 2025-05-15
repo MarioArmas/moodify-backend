@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www && npm run sentry:sourcemaps",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org universidad-rafael-landivar-9j --project moodify-backend . && sentry-cli sourcemaps upload --org universidad-rafael-landivar-9j --project moodify-backend ."
   },
   "dependencies": {
     "@sentry/cli": "^2.45.0",
