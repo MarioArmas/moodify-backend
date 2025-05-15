@@ -10,6 +10,7 @@ const sequelize = require('./config/db');
 var indexRouter = require('./routes/index')
 const authRoutes = require('./routes/auth-routes')
 const songRoutes = require('./routes/song-routes')
+const awsRoutes = require('./routes/aws-routes')
 
 var app = express()
 
@@ -27,6 +28,7 @@ app.use(cors())
 app.use('/', indexRouter)
 app.use('/api/auth', authRoutes)
 app.use('/api/song', songRoutes)
+app.use('/aws/rekognition', awsRoutes)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
