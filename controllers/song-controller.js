@@ -150,7 +150,7 @@ exports.getLastRecommendations = async (req, res) => {
     });
 
     if (lastRecommendations.length === 0) {
-      return res.status(404).json({ error: 'No se encontraron recomendaciones recientes' });
+      return res.status(204).json({ error: 'No se encontraron recomendaciones recientes' });
     }
 
     // Devolver las canciones recomendadas
